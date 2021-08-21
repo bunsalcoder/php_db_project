@@ -31,6 +31,7 @@
                         }
                     }
                 ?>
+                    <!-- Login Form -->
                     <form method="post">
                         <h4 class="d-flex justify-content-center">Welcome</h4>
                         <div class="col-12 mt-4">
@@ -52,6 +53,7 @@
                         </div>
                         <small class="text-danger"><?= $message ?></small>
                     </form>
+                    <!-- End Login Form -->
                     <hr class="mt-5">
                     <div class="col-12">
                         <p class="text-center mb-0">Have not account yet? <a href="signup.php">Signup</a></p>

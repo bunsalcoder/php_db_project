@@ -139,24 +139,61 @@
 
     //___________________________________________SIGN UP____________________________________________________//
     function signUp($value){
-        $signupName = $value['signupFirstName'] . $value['signupLastName'];
-        $signupProfile = $_FILES['signupFile']['name'];
-        $tmp_name = $_FILES['signupFile']['tmp_name'];
-        $userRole = "user";
-        $signupEmail = $value['signupEmail'];
-        $signupPassword = $value['signupPassword'];
-        $signupConfirmPassword = $value['signupConfirmPassword'];
 
-        $dir = '../assets/img/';
-        move_uploaded_file($tmp_name, $dir.$signupProfile);
+        $nameRegex = "/^[a-zA-z]+$/";
+        $emailRegex =  "/^[a-zA-Z\d\._]+@[a-zA-Z\d\._]+\.[a-zA-Z\d\.]{2,}+$/";
+        $passwordRegex = "/^[a-zA-z\d\b_]+$/";
 
-        session_start();
-        $_SESSION['userLogin'] = $signupName;
+        $isNotError = true;
+        $errorArray = array("firstNameError"=>"", "lastNameError"=>"","emailError"=>"","passwordError"=>"");
 
-        if ($signupPassword == $signupConfirmPassword){
-            $passEncrypt = password_hash($signupPassword, PASSWORD_DEFAULT);
-            return db()->query("INSERT INTO users (userName, userProfile, userRole, userEmail, userPassword) VALUES ('$signupName', '$signupProfile', '$userRole', '$signupEmail', '$passEncrypt')");
+        if (!preg_match($nameRegex, $value['signupFirstName'])) {
+            $errorArray["firstNameError"] = "Firstname allowed only characters.";
+            $isNotError = false;
         }
+
+        if (!preg_match($nameRegex, $value['signupLastName'])) {
+            $errorArray["lastNameError"] = "Lastname allowed only characters.";
+            $isNotError = false;
+        }
+
+        if (!preg_match($emailRegex, $value['signupEmail'])){
+            $errorArray["emailError"] = "Please, enter the correct email form.";
+            $isNotError = false;
+        }
+
+        if ($value['signupPassword'] != $value['signupConfirmPassword']){
+            $errorArray["passwordError"] = "Password doesn't match.";
+            $isNotError = false;
+        }else{
+            if (!preg_match($passwordRegex, $value['signupPassword'])){
+                $errorArray["passwordError"] = "Password allowed only characters, digits, underscores and spaces.";
+                $isNotError = false;
+            }
+        }
+
+        if ($isNotError){
+            $signupName = $value['signupFirstName'] . $value['signupLastName'];
+            $signupProfile = $_FILES['signupFile']['name'];
+            $tmp_name = $_FILES['signupFile']['tmp_name'];
+            $userRole = "user";
+            $signupEmail = $value['signupEmail'];
+            $signupPassword = $value['signupPassword'];
+
+            $dir = '../assets/img/';
+            move_uploaded_file($tmp_name, $dir.$signupProfile);
+
+            session_start();
+            $_SESSION['userLogin'] = $signupName;
+
+            $passEncrypt = password_hash($signupPassword, PASSWORD_DEFAULT);
+            db()->query("INSERT INTO users (userName, userProfile, userRole, userEmail, userPassword) VALUES ('$signupName', '$signupProfile', '$userRole', '$signupEmail', '$passEncrypt')");
+            header("Location: http://localhost/php_db_project/?page=home");
+            die();
+        }else{
+            return $errorArray;
+        }
+
     }
 
 
@@ -185,7 +222,7 @@
         $techAndTravel = $value['searchTechAndTravel'];
         return db()->query("SELECT * FROM post WHERE postTitle LIKE '%$techAndTravel%'");
     }
-    
+
 
     function searchUser($user){
         $users = $user['searchUser'];
