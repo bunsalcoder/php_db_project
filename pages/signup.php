@@ -25,6 +25,8 @@
 
         if(isset($_POST['submit'])){
             $isUserSignedup = signUp($_POST);
+
+            // Get the error messages from the database function.
             $signupFirstName_error =  $isUserSignedup["firstNameError"];
             $signupLastName_error =  $isUserSignedup["lastNameError"];
             $signupEmail_error =  $isUserSignedup["emailError"];

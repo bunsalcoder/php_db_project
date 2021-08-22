@@ -140,28 +140,34 @@
     //___________________________________________SIGN UP____________________________________________________//
     function signUp($value){
 
+        // Regular Expression of name, email and password
         $nameRegex = "/^[a-zA-z]+$/";
         $emailRegex =  "/^[a-zA-Z\d\._]+@[a-zA-Z\d\._]+\.[a-zA-Z\d\.]{2,}+$/";
         $passwordRegex = "/^[a-zA-z\d\b_]+$/";
 
+        // condition and array to store error values
         $isNotError = true;
         $errorArray = array("firstNameError"=>"", "lastNameError"=>"","emailError"=>"","passwordError"=>"");
 
+        // firstname regular expression checking
         if (!preg_match($nameRegex, $value['signupFirstName'])) {
             $errorArray["firstNameError"] = "Firstname allowed only characters.";
             $isNotError = false;
         }
 
+        // lastname regular expression checking
         if (!preg_match($nameRegex, $value['signupLastName'])) {
             $errorArray["lastNameError"] = "Lastname allowed only characters.";
             $isNotError = false;
         }
 
+        // email regular expression checking
         if (!preg_match($emailRegex, $value['signupEmail'])){
             $errorArray["emailError"] = "Please, enter the correct email form.";
             $isNotError = false;
         }
 
+        // password and confirm password regular expression checking
         if ($value['signupPassword'] != $value['signupConfirmPassword']){
             $errorArray["passwordError"] = "Password doesn't match.";
             $isNotError = false;
@@ -172,6 +178,7 @@
             }
         }
 
+        // #isNotError is true, username, password, email will be automatically inserted into database.
         if ($isNotError){
             $signupName = $value['signupFirstName'] . $value['signupLastName'];
             $signupProfile = $_FILES['signupFile']['name'];
@@ -180,13 +187,18 @@
             $signupEmail = $value['signupEmail'];
             $signupPassword = $value['signupPassword'];
 
+            // Images directory
             $dir = '../assets/img/';
             move_uploaded_file($tmp_name, $dir.$signupProfile);
 
+            // Session for users login and signup
             session_start();
             $_SESSION['userLogin'] = $signupName;
 
+            // Password encryption
             $passEncrypt = password_hash($signupPassword, PASSWORD_DEFAULT);
+
+            // Insert into database
             db()->query("INSERT INTO users (userName, userProfile, userRole, userEmail, userPassword) VALUES ('$signupName', '$signupProfile', '$userRole', '$signupEmail', '$passEncrypt')");
             header("Location: http://localhost/php_db_project/?page=home");
             die();
@@ -203,12 +215,15 @@
         $password = $value['userPassword'];
         $isLogin = false;
 
+        // select all users form users table
         $getUser = db()->query("SELECT * FROM users");
 
+        // session for login and signup
         session_start();
         $_SESSION['userLogin'] = $userName;
 
         foreach($getUser as $user){
+            // compare the username in database and input username, verify password and password encrypted
             if($user['userName'] === $userName and password_verify($password, $user['userPassword'])){
                 $isLogin = true;
             }
